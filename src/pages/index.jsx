@@ -287,7 +287,7 @@ export default function Home({ articles }) {
               icon={GitHubIcon}
             />
             <SocialLink
-              href="https://linkedin.com"
+              href="https://www.linkedin.com/in/daniel-matthews-1871aaba/"
               aria-label="Follow on LinkedIn"
               icon={LinkedInIcon}
             />

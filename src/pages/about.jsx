@@ -61,34 +61,35 @@ export default function About() {
           </div>
           <div className="lg:order-first lg:row-span-2">
             <h1 className="text-4xl font-bold tracking-tight text-zinc-800 dark:text-zinc-100 sm:text-5xl">
-              I’m Dan Matthews, and I really hate writing these about pages.
+              I’m Dan Matthews, and oh boy... I really hate writing these about pages.
             </h1>
             <div className="mt-6 space-y-7 text-base text-zinc-600 dark:text-zinc-400">
               <p>
-                I’ve loved making things for as long as I can remember, and
-                wrote my first program when I was 6 years old, just two weeks
-                after my mom brought home the brand new Macintosh LC 550 that I
-                taught myself to type on.
+                I&apos;ll try and write some stuff here without going on too much! TL;DR? ADHD Web Developer working in the nonprofit industry. Trying to do some good through code.
               </p>
               <p>
-                The only thing I loved more than computers as a kid was space.
-                When I was 8, I climbed the 40-foot oak tree at the back of our
-                yard while wearing my older sister’s motorcycle helmet, counted
-                down from three, and jumped — hoping the tree was tall enough
-                that with just a bit of momentum I’d be able to get to orbit.
+                I'm a web developer and have been ever since I was given a book on CSS and HTML
+                from a friend's dad nearly two decades ago now, I've been
+                fascinated with what you can do with code. I even turned down a place
+                at university to do mechanical engineering to delve further into the tech world.
               </p>
               <p>
-                I spent the next few summers indoors working on a rocket design,
-                while I recovered from the multiple surgeries it took to fix my
-                badly broken legs. It took nine iterations, but when I was 15 I
-                sent my dad’s Blackberry into orbit and was able to transmit a
-                photo back down to our family computer from space.
+                I studied at the University of Cumbria on a course that promised a lot and delivered very little for someone with my aims.
+                Everything i know about web development i sort of pride myself on having taught myself
+                or learned through meeting and working with some incredible people over the years.
               </p>
               <p>
-                Today, I’m the founder of Planetaria, where we’re working on
-                civilian space suits and manned shuttle kits you can assemble at
-                home so that the next generation of kids really <em>can</em>{' '}
-                make it to orbit — from the comfort of their own backyards.
+                I was hired straight out of university, and spent 5-6 years building websites in Drupal with some of the finest people i've ever met.
+              </p>
+              <p>
+                After that, I spent nearly six years running my own
+                freelancing business - <a className="underline" href="https://blacklabsoftware.co.uk">Black Lab Software</a> -
+                working with fantastic clients in the healthcare and recruitment sectors.
+              </p>
+              <p>Now? I'm working at the fantastic <a className="underline" href="https://socialsync.io">Social Sync</a> with a brilliant
+                team who are focused on building best-in-class tools for nonprofits
+                to be able to run fundraising campaigns without paying extortionate amounts to
+                fundraising companies.
               </p>
             </div>
           </div>
@@ -103,7 +104,7 @@ export default function About() {
               <SocialLink href="https://github.com/danmatthews" icon={GitHubIcon} className="mt-4">
                 Follow on GitHub
               </SocialLink>
-              <SocialLink href="https://twitter.com/danmatthews" icon={LinkedInIcon} className="mt-4">
+              <SocialLink href="https://www.linkedin.com/in/daniel-matthews-1871aaba/" icon={LinkedInIcon} className="mt-4">
                 Follow on LinkedIn
               </SocialLink>
               <SocialLink
