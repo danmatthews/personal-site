@@ -1,0 +1,156 @@
+import { ArticleLayout } from '@/components/ArticleLayout'
+
+export const meta = {
+  author: 'Dan Matthews',
+  date: '2018-04-15',
+  title: 'Obfuscating IDs with Laravel',
+  description:
+    'Learn how to use short alphanumerical representations of your database ID rather than exposing your primary key.',
+}
+export default (props) => <ArticleLayout meta={meta} {...props} />
+
+>I saw a pretty common question from Tyris on the Laracast forums this morning about hiding the ID from the URL of their laravel application.
+
+I've done this on a lot of projects, and figured i'd show how i approach the subject using the [Hashids library](https://github.com/ivanakimov/hashids.php).
+
+## Install Hashids:
+
+This part is simple, add it to your project with:
+
+```
+composer require hashids/hashids
+```
+
+## Create a provider to handle generating HashIDs automatically for your models.
+
+(Psst...My way of adding event listeners is a little "old-school" now, you might want to upgrade to an observable class, or adding event listeners through the model)
+
+```php
+php artisan make:provider HashIdModelProvider
+```
+
+Then make sure you add this to your `providers` array in `config/app.php`:
+
+```php
+'providers' => [
+//
+//
+//
+
+  \App\Providers\HashIdModelProvider::class
+]
+```
+
+
+### Set up a column in your database.
+
+In order to generate a HashId that's unique to the model we're creating it for, we need the model to have an `id` - these are assigned by the database, so we can only add a HashID *after* the model has been initially saved.
+
+That means that the column that stores the HashID value will *not* have a value when saved initially, so it must be `nullable()`, for example:
+
+```php
+Schema::create('posts', function($table) {
+    $table->increments('id');
+    $table->string('url_string')->nullable(); // So it won't throw errors when saving posts.
+    $table->text('post_content');
+    $table->timestamps();
+});
+```
+
+### Listen for the model created event.
+
+When a new `post` is created, we want to *create* and *save* a HashID in the `url_string` column of the table!
+
+So, add an event listener for the model `created` event in your service provider you created:
+
+```php
+use App\Post;
+
+public function boot()
+{
+  Post::created(function($model) {
+    // Create and save the hashid here.
+  });
+}
+```
+
+Now, all we have to do is create the actual HashID, assign it to the `url_string` column of the `model`, and that's it!
+
+```php
+use App\Post;
+use Hashids\Hashids;
+
+public function boot()
+{
+  Post::created(function($model) {
+    $generator = new Hashids(Post::class, 10);
+	$model->url_string = $generator->encode($model->id);
+    $model->save();
+  });
+}
+```
+
+Notice how in the call to `new Hashids`, we're passing two arguments:
+
+```php
+new Hashids(Post::class, 10);
+```
+
+The first, is a string, which will be something like `\App\Post` - this acts as a [salt](https://en.wikipedia.org/wiki/Salt_(cryptography)) of sorts, making sure that the hash it generates is unique to this class.
+
+If you *didn't* pass this, then the `Post` with an ID of 1, and a `User` with an id of 1 may end up with the same hash!
+
+The second argument is a *minimum length* - by default Hashids will spit out the shortest length string possible - usually one or two characters. We want at least 10 here to make it not look silly in a URL.
+
+*(This minimum length stuff is totally optional but i prefer a longer hash by default)*
+
+## Bonus round!
+
+Do you use route model binding? that is, say you have a route:
+
+```php
+use App\Post;
+
+// www.myapp.com/posts/24
+Route::get('posts/{post}', function(Post $post) {
+  // $post is a fully fledged App\Post instance thanks to model binding!
+});
+```
+
+You can update Laravel's automatic resolution for model binding by importing the Route facade and adding this code to your service provider:
+
+```php
+use App\Post;
+use Hashids\Hashids;
+use Illuminate\Support\Facades\Route;
+
+public function boot()
+{
+  
+	
+// Your other code above here
+
+Route::bind('post', function ($value) {
+  return Post::where('url_string', $value)->first();
+});
+
+}
+```
+
+## Update: Bonus round two:
+
+You can quickly set the column name that route model binding should use to search for by overriding the `getRouteKeyName()` method on your model:
+
+```php
+// Post.php
+
+public function getRouteKeyName()
+{
+    return 'url_string';
+}
+
+```
+
+Thanks to [Lee Willis](http://twitter.com/leewillis77) and [Ben Sampson](https://twitter.com/BenSampo) for that one - i didn't know about it! #timesaver
+
+That should be it! If you have any feedback on this article, [Tweet me](http://danmatthews.me/twitter)!

@@ -1,0 +1,177 @@
+import { ArticleLayout } from '@/components/ArticleLayout'
+
+export const meta = {
+  author: 'Dan Matthews',
+  date: '2018-04-15',
+  title: 'Managing permission changes in production Laravel apps using Migrations',
+  description:
+    'A case for using migrations to make changes to database-persisted permission in Laravel.',
+}
+export default (props) => <ArticleLayout meta={meta} {...props} />
+
+So, i'm sitting here working on a new project on a weekend - and i need a roles and permissions library, and of course, someone on the LaravelUK Slack point out that [spatie.be](https://spatie.be) has [one](https://github.com/spatie/laravel-permission) already out there, with tests and everything.
+
+This article's code snippets are specific to this library, but the concept can be applied to any.
+
+> "But roles and permissions are super easy to create in laravel with Gates and Policies"
+
+You aren't wrong. But persisting the roles and permissions to the DB, writing tests to make sure everything works as it should, and all the other guff associated with it can take time, and if there's already a package out there that can handle it, save yourself some of the that time by using it. It doesn't do everything i need, but it gets me more than 90% of the way there with little effort, and that's important to a freelancer like myself.
+
+## Initial roles and permissions can be set using a Seeder
+
+So, after about 10 minutes, i was setup with this package, and set up a `DatabaseSeeder` to add the initial roles and permissions:
+
+```php
+<?php
+
+use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Role;
+
+class RoleSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
+    {
+      $role = Role::create(['name' => 'super-admin']);
+      $role->givePermissionTo('quiz.create');
+      $role->givePermissionTo('quiz.edit');
+      $role->givePermissionTo('quiz.delete');
+      $role->givePermissionTo('organisation.create');
+      ...
+    }
+}
+```
+
+This is fine during development, but what if i want to change or alter these roles or permissions later while the application is in production?
+
+It could happen easily - adding a new feature maybe, or perhaps you just need to tweak who can do what in an application?
+
+### The config problem.
+
+I've been here before - the roles and permissions are stored in database tables now, and cached so that they're faster in your application, so when you deploy your new feature, you have to update the database somehow.
+
+#### Update the database and create the new roles/permissions manually.
+
+Yuck, this is an awful way to do it, and has the most probability of something going wrong that has to be corrected manually.
+
+Also - [it won't clear the permission and role cache on the site for you](https://github.com/spatie/laravel-permission#cache).
+
+#### Do it in Tinker.
+
+If you have the CLI Tinker package installed, you can do it there:
+
+```bash
+> php artisan tinker
+> Psy Shell v0.8.17 (PHP 7.1.13 — cli) by Justin Hileman
+> >>> Spatie\Permission\Models\Role::findByName('super-admin')->givePermissionTo('do that thang');
+> >>> app()['cache']->forget('spatie.permission.cache');
+```
+
+But:
+
+- Yeah, you have to type the full namespace of the class each time.
+- It's pretty untenable if you have a lot of stuff to do.
+- There's no auditable trail to when this was done - at least you know things in your seeders are done right at the start of your application (or later, see next point)
+
+#### Make your seeders update-aware.
+
+You COULD make it so that your seeders double check that something exists before creating them:
+
+```php
+<?php
+
+use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Role;
+
+class RoleSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
+    {
+
+      $role = Role::firstOrCreate(['name' => 'super-admin']);
+
+      // Sync will delete then re-add all the permissions.
+      $role->syncPermissions([
+        'quiz.create'
+        'quiz.edit',
+        'quiz.delete',
+        'organisation.create',
+        // ...any new ones you want to add
+      ]);
+    }
+}
+```
+
+Now THIS is better - all we have to do is run the seeder again on it's own for our production app:
+
+```shell
+> php artisan db:seed --class=RoleSeeder
+```
+
+Done! But there's an even nicer way, in my opinion...
+
+#### Use migrations!
+
+__Migrations__ are mostly associated with database structure rather than content, but they are an effective way of managing any process where you need to manipulate something in your app in a way that respects the content and structure of the database you have currently. They're also quickly reversible, and very verbose in that you're laying out the exact changes you're making.
+
+They're also SCM/GIT friendly, so you can track, comment on, and approve the changes you're making with your team if you have one, or a product manager.
+
+So in this situation, say we want to add a new role called "student", we would generate a migration:
+
+```
+> php artisan make:migration permissions_add_student_role
+```
+
+And in our `up()` method we can add the new role and new permissions, or even alter old ones:
+
+```php
+use App\User;
+use Spatie\Permission\Models\Role;
+
+public function up()
+{
+
+  // New student Role and permissions.
+  $role = Role::create(['name' => 'student']);
+  $role->givePermissionTo('quiz.view');
+  $role->givePermissionTo('quiz.results.view');
+  
+  // Alter an old role.
+  $role = Role::findByName('super-admin');
+  $role->revokePermissionTo('quiz.delete'); // Maybe we don't want ANYONE to be able to delete quizzes anymore.
+}
+```
+
+This will __clear the cache for you__ since you're making changes using the model/trait methods, you can also see *exact changes* you made to the roles and permissions, and if you write a down method, you can reverse them:
+
+```php
+public function down()
+{
+
+  // New student Role and permissions.
+  $role = Role::findByName('student');
+  $role->revokePermission('quiz.view');
+  $role->revokePermission('quiz.results.view');
+  $role->delete();
+  
+  // Alter an old role.
+  $role = Role::findByName('super-admin');
+  $role->givePermissionTo('quiz.delete'); // Maybe we don't want ANYONE to be able to delete quizzes anymore.
+}
+```
+
+And there you go - role and permission changes that are auditable without reading commit messages, and can easily be reversed.
+
+Got any feedback? Give me a shout on [twitter](https://twitter.com/danmatthews).
+
+
+
