@@ -68,8 +68,8 @@ export default function About() {
                 I&apos;ll try and write some stuff here without going on too much! TL;DR? ADHD Web Developer working in the nonprofit industry. Trying to do some good through code.
               </p>
               <p>
-                I'm a web developer and have been ever since I was given a book on CSS and HTML
-                from a friend's dad nearly two decades ago now, I've been
+                I&apos;m a web developer and have been ever since I was given a book on CSS and HTML
+                from a friend&apos;s dad nearly two decades ago now, I&apos;ve been
                 fascinated with what you can do with code. I even turned down a place
                 at university to do mechanical engineering to delve further into the tech world.
               </p>
@@ -79,14 +79,14 @@ export default function About() {
                 or learned through meeting and working with some incredible people over the years.
               </p>
               <p>
-                I was hired straight out of university, and spent 5-6 years building websites in Drupal with some of the finest people i've ever met.
+                I was hired straight out of university, and spent 5-6 years building websites in Drupal with some of the finest people i&apos;ve ever met.
               </p>
               <p>
                 After that, I spent nearly six years running my own
                 freelancing business - <a className="underline" href="https://blacklabsoftware.co.uk">Black Lab Software</a> -
                 working with fantastic clients in the healthcare and recruitment sectors.
               </p>
-              <p>Now? I'm working at the fantastic <a className="underline" href="https://socialsync.io">Social Sync</a> with a brilliant
+              <p>Now? I&apos;m working at the fantastic <a className="underline" href="https://socialsync.io">Social Sync</a> with a brilliant
                 team who are focused on building best-in-class tools for nonprofits
                 to be able to run fundraising campaigns without paying extortionate amounts to
                 fundraising companies.
