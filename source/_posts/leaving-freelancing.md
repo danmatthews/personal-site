@@ -1,13 +1,11 @@
-import { ArticleLayout } from '@/components/ArticleLayout'
-
-export const meta = {
-  author: 'Dan Matthews',
-  date: '2022-09-02',
-  title: 'Why I\'m moving back to a full time position',
-  description:
-    'The fact that this is the first post on this blog in around 3 years should give you some idea of how manic life has been for me recently...',
-}
-export default (props) => <ArticleLayout meta={meta} {...props} />
+---
+extends: _layouts.post
+section: content
+title: After 7 years (and trying to start a bakery), i'm moving back to a full time role
+date: 2022-05-12
+featured: true
+categories: [freelancing]
+---
 
 ## 7 Years Freelance
 
@@ -37,7 +35,9 @@ That was the end of that.
 
 ## Ramping things back up
 
-So i'd been at less than half capacity for a few months, i'd saved up a cash buffer, but 
+So i'd been at less than half capacity for a few months, i'd saved up a cash buffer, but i'd ended up spending much of that on bakery stuff and even costs relating to closing it down (storage space is expensive!).
+
+So i went into full 
 
 
 
