@@ -5,6 +5,7 @@ import { Header } from '@/components/Header'
 
 import '@/styles/tailwind.css'
 import 'focus-visible'
+import "@code-hike/mdx/dist/index.css"
 
 function usePrevious(value) {
   let ref = useRef()

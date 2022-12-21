@@ -21,7 +21,7 @@ You aren't wrong. But persisting the roles and permissions to the DB, writing te
 
 So, after about 10 minutes, i was setup with this package, and set up a `DatabaseSeeder` to add the initial roles and permissions:
 
-```php
+```php RoleSeeder.php
 <?php
 
 use Illuminate\Database\Seeder;
@@ -113,8 +113,8 @@ class RoleSeeder extends Seeder
 
 Now THIS is better - all we have to do is run the seeder again on it's own for our production app:
 
-```shell
-> php artisan db:seed --class=RoleSeeder
+```bash 
+php artisan db:seed --class=RoleSeeder
 ```
 
 Done! But there's an even nicer way, in my opinion...
@@ -127,13 +127,13 @@ They're also SCM/GIT friendly, so you can track, comment on, and approve the cha
 
 So in this situation, say we want to add a new role called "student", we would generate a migration:
 
-```
-> php artisan make:migration permissions_add_student_role
+``` bash
+php artisan make:migration permissions_add_student_role
 ```
 
 And in our `up()` method we can add the new role and new permissions, or even alter old ones:
 
-```php
+```php migrations/000000_add_new_roles.php
 use App\User;
 use Spatie\Permission\Models\Role;
 
